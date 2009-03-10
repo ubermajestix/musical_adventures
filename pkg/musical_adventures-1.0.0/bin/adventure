@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+
+#$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
+require 'rubygems'
+require 'open-uri'      
+require 'cgi'
+
+begin
+  gem "main", ">= 2.8.2" # 2.8.2 has a bugfix for the default block for -1 arity arguments
+  require "main"
+rescue Gem::LoadError
+  STDERR.puts "need the main gem to run lyric. sudo gem install main"
+end
+
+Main do
+
+  description <<-EOS
+    Post musical adventures to ubermajestix.com/daily_adventures 
+  EOS
+
+  examples <<-EOS
+    adventure --album boom --artist boomers --track boom part 1 --playlist Things that go Boom  
+  EOS
+  
+  option 'album' do
+    argument :required
+    description "um...its a collection of musical tracks." 
+  end  
+  
+  option 'artist' do
+    argument :required
+    description "the creator!!!!!1!!!eleven" 
+  end      
+  
+  option 'track' do
+    argument :optional
+    description "sound comes out of this" 
+  end
+  
+  option 'playlist' do
+    argument :optional
+    description "its like an album, but all out of order" 
+  end    
+  
+  option 'link' do
+    argument :optional
+    description "send me to the myspaces or last.fm" 
+  end
+  
+  run do
+    adventure={:album => params['album'].value, 
+    :artist => params['artist'].value,   
+    :track => params['track'].value,  
+    :playlist => params['playlist'].value, 
+    :link => params['link'].value}   
+    adventure_url = []
+    adventure.each{|k,v| adventure_url << "adventure[#{k}]=#{CGI.escape(v)}" if v}
+    puts "=="*45
+    puts "#{adventure_url.join('&')}"
+    puts "=="*45
+    result = open("http://ubermajestix.com/new_adventure?#{adventure_url.join('&')}", "User-Agent" => "Ruby/#{RUBY_VERSION}"){|f| f.read}
+    puts result
+  end  
+
+end   
+  

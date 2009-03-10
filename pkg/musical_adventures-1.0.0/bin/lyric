@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+#$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
+require 'rubygems'
+require 'open-uri'      
+require 'cgi'
+
+begin
+  gem "main", ">= 2.8.2" # 2.8.2 has a bugfix for the default block for -1 arity arguments
+  require "main"
+rescue Gem::LoadError
+  STDERR.puts "need the main gem to run lyric. sudo gem install main"
+end
+
+Main do
+
+  description <<-EOS
+  Post lyrics to ubermajestix.com/lyrics
+  EOS
+
+  examples <<-EOS
+  lyric booms are booming from great distances
+  EOS
+
+  run do
+    lyric = ARGV[0]
+    puts "adding lyric: #{lyric}"                
+    result = open("http://ubermajestix.com/create_lyric?lyric[lyric]=#{CGI.escape(lyric)}", "User-Agent" => "Ruby/#{RUBY_VERSION}"){|f| f.read}    
+    puts result
+  end  
+
+  end
